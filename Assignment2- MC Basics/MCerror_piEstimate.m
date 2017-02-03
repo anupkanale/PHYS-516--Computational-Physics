@@ -1,21 +1,33 @@
-ntry = [10,1e2,1e3,1e4,1e5,1e6];
-Nseed=100;
-for ii=1:length(ntry)
-    sum = 0; sum2 = 0;
-    term1 = 0; term2 = 0;
+close all;
+npts = 10.^[1:6]; % number of points for integration
+Nseed = 100;
+
+% number of trials
+for ii=1:length(npts)
+    %number of repetitions
+    term1=0; term2=0;
     for kk=1:Nseed
-        for jj=1:ntry(ii)
+        %MC integration
+        sum = 0;
+        for jj=1:npts(ii)
             x = rand;
             fx = 4/(1+x^2);
             sum = sum+fx;
-            sum2 = sum2+fx^2;
         end;
-        pi(kk) = sum/(ntry(ii)*Nseed);
-        term1 = term1 + pi(kk);
-        pi2(kk) = sum2/(ntry(ii)*Nseed);
-        term2 = term2 + pi2(kk);
+        pi(kk,ii) = sum/npts(ii);
+        term1 = term1 + pi(kk,ii)*pi(kk,ii);
+        term2 = term2 + pi(kk,ii);
     end;
-    stdvExp(ii) = term2/Nseed - (term1/Nseed)^2;
-    stdvExp(ii) = sqrt(stdvExp(ii));
+    stdvMeas(ii) = term1/Nseed - (term2/Nseed)^2;
+    stdvMeas(ii) = sqrt(stdvMeas(ii));
 end;
-plot(log10(ntry), log10(stdvExp));
+
+%% Plots
+plot(log10(npts),log10(stdvMeas),'ob');
+h = lsline
+p2 = polyfit(get(h,'xdata'),get(h,'ydata'),1)
+grid on;
+xlabel('log M'); ylabel('log SD')
+hold on;
+plot(log10(npts),log10(stdv), 'or')
+legend('measured \sigma', 'LS Fit', 'unbiased estimate')
