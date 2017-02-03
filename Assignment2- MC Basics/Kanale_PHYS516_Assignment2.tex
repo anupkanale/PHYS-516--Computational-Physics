@@ -7,6 +7,9 @@
 \usepackage{amssymb}
 \usepackage{siunitx}
 \usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[numbered,framed]{matlab-prettifier}
 
 \usepackage{color}
 \usepackage{titling}
@@ -49,11 +52,8 @@ The plot below shows the estimate of $\pi$ as a function of the number of Monte 
 	\end{figure}
 	
 	It is easily seen that the error decreases with increasing number of trials, and that beyond $10^5$ trials, increasing $M$ has negligible effect on the error.	
-	\begin{figure} [!htbp]
-	\centering
-	 \includegraphics[scale=0.5]{pi_MCestimate_code.jpg}
-	\caption{Source Code}
-	\end{figure}
+\lstinputlisting[style=Matlab-editor]{pi_estimate.m}
+
 \subsection{Monte Carlo Error}
 We next perform a numerical experiment to directly measure the standard deviation of the MC estimate. To do so, for each of the above M values, $\pi$ is estimated $N_{seed}$ times using $N_{seed}$ different random-number seeds. The standard deviation $\sigma_M$ of these $N_{seed}$ estimates $\pi_1$, $\pi_2$, ..., $\pi_{N_{seed}}$
 	\begin{equation}
@@ -66,15 +66,13 @@ Using a least square fit, the equation of the line obtained is
 We see that the unbiased estimates from the previous question neatly fall onto this fitted line.
  	\begin{figure} [!htbp]
 	\centering
-	 \includegraphics[scale=0.5]{stdv_fit.jpg}
+	 \includegraphics[scale=0.75]{stdv_fit.jpg}
 	\caption{Unbiased Estimates and Measured values of Standard Deviation}
 	\end{figure}
 	
-		\begin{figure} [!htbp]
-	\centering
-	 \includegraphics[scale=0.5]{stdv_fitCode.jpg}
-	\caption{Source Code}
-	\end{figure}
+\pagebreak
+\lstinputlisting[style=Matlab-editor]{MCerror_piEstimate.m}
+
 \pagebreak
 \section{Non-uniform random number generation: Box-Muller Transformation}
 A Box-Muller algorithm generates a normally distributed random number. This algorithm is similar in principle to the Greenland Phenomenon.
@@ -132,9 +130,5 @@ $$ P'(\zeta) = \sqrt{\frac{1}{2\pi}} \exp{\zeta ^2} $$
 	\caption{$r_1-r_2$ space and the transformed $\zeta_1-\zeta_2$ space}
 	\end{figure}
 
-	\begin{figure} [!htbp]
-	\centering
-	 \includegraphics[scale=0.6]{BoxMullerAlgo_code.jpg}
-	\caption{Source Code}
-	\end{figure}
+\lstinputlisting[style=Matlab-editor]{BoxMullerAlgo.m}
 \end{document}
