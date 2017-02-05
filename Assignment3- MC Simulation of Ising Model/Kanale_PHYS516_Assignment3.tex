@@ -1,0 +1,42 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage[margin=1in]{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or epsÂ§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+\usepackage{undertilde}
+
+\usepackage[T1]{fontenc}
+\usepackage{mathtools}  % loads »amsmath«
+\usepackage{physics}
+
+\setlength{\parskip}{0.5em}
+%SetFonts
+
+%SetFonts
+\newcommand\Rey{\mbox{\textit{Re}}}
+
+\title{\large PHYS 516: Methods of Computational Physics \\
+  \normalsize ASSIGNMENT 1- Writing like a Computational Scientist}
+\author{Anup V Kanale}
+\date{\today}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\section{Part 1- Theoretical Foundation of Metropolis Foundation}
+Consider a set of N states, {$\Gamma_1, \Gamma_2, ..., \Gamma_N$} and let the probability to find the system in the $m$-th state, $\Gamma_m$, be $\rho_m$. Prove that the probability distribution is a fixed point of the metropolis transition matrix defined below, i.e., $\Pi \rho = \rho$.
+
+\[
+\text{(Metropolis transition matrix)} \pi_{mn}= 
+\begin{dcases}
+	\alpha_{mn} & \rho_m \geq \rho_n m \neq n \\
+    \frac{\rho_m}{rho_n} \alpha_{mn} & \rho_m \leq \rho_n m \neq n \\
+    1- \sum\limits_{m' \neq n} \pi_{m'n}
+\end{dcases}
+\]
+
+Here, $pi_{mn}$ are elements of the matrix $\Pi$, $\rho_m$ are the elements of vector $\rho$, and $\alpha_{mn}$ are elements of a symmetric attempt matrix, i.e., $\alpha_{mn}= \alpha_{nm}$.
+\section{Solution}
+\end{document}
