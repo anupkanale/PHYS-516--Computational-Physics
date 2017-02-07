@@ -11,7 +11,7 @@ double exp_dV[2][5];
 double JdivT; // J/kBT
 double HdivT; // H/kBT
 
-void table_set(){ //function to compute the exponential term
+void table_set(){  //function to set up the table
   int sDash,sneighbor,k,l;
   for (k=0;k<2;k++){
   	sDash = 2*k-1;
@@ -28,6 +28,7 @@ int main() {
 	double exp_val, avgM, sigM;
 	int snew,sneighbor,Sta_step;
 	int i,j,step,k,l,im,ip,jm,jp;
+	FILE *f = fopen("Magnetization_data.txt", "w");
 
 	printf("Input J/kBT\n");
 	scanf("%le",&JdivT);
@@ -37,16 +38,15 @@ int main() {
 
 	table_set();	// Set up the look-up table for the exponent calculation
 
-	for(i=0;i<5;i++) {			//Cold start- start with all spins up configuration
-		for(j=0;j<5;j++) {
+	for(i=0;i<L;i++) {	//Cold start- start with all spins up configuration
+		for(j=0;j<L;j++) {
 			s[i][j] = 1;
 		}
 	}
 	runM=1.0*L*L;
 
 	for(step=0; step<Sta_step; step++) {
-		i=rand()%L;
-		j=rand()%L;
+		i=rand()%L;		j=rand()%L;
 		snew=-s[i][j];
 
 		// Figure out which element of the table is to be looked up
@@ -54,15 +54,13 @@ int main() {
 		ip = (i + 1) % L;
 		jm = (j + L - 1) % L;
 		jp = (j + 1) % L;
-
 		k = (snew+1)/2;
 		sneighbor = s[im][j] + s[ip][j] + s[i][jm] + s[i][jp];
 		l = (sneighbor+4)/2;
 
 		//Change in Pot Energy wth flip
 		exp_val=exp_dV[k][l];
-
-		// Accept of reject flip
+		// Accept or reject flip conditionally
 		if (exp_val>1.0) {
 			s[i][j] = snew;
 			runM += 2*snew; //update value of magnetization
@@ -71,13 +69,12 @@ int main() {
 			s[i][j] = snew;
 			runM += 2*snew; //update value of magnetization
 		}
-
 		sumM += runM;
 		sumM2 += runM*runM;
+		fprintf(f, "%f\n", runM);	
 	}
-	avgM = sumM/Sta_step;					//Mean Magnetization
+	fclose(f);
+	avgM = sumM/Sta_step;		//Mean Magnetization
 	sigM = sqrt(sumM2/Sta_step-avgM*avgM);	//Standard deviation
-
-	printf("Mean Magnetization %le \n", avgM);
-	printf("Standard Deviation %le \n", sigM);
+	printf("Mean Magnetization %le, Standard Deviation %le \n", fabs(avgM), sigM);
 }
