@@ -11,21 +11,22 @@ File md.h is an include file for program md.c.
 /* Functions & function prototypes ********************************************/
 
 double SignR(double v,double x) {if (x > 0) return v; else return -v;}
-double Dmod(double a, double b) {
+double Dmod(double a, double b) { //gives remainder of a/b
 	int n;
 	n = (int) (a/b);
 	return (a - b*n);
 }
-double RandR(double *seed) {
+double RandR(double *seed) { // Linear congruential random number generator
 	*seed = Dmod(*seed*DMUL,D2P31M);
 	return (*seed/D2P31M);
 }
-void RandVec3(double *p, double *seed) {
+void RandVec3(double *p, double *seed) { // generate a random point on a sphere.
 	double x,y,s = 2.0;
 	while (s > 1.0) {
 		x = 2.0*RandR(seed) - 1.0; y = 2.0*RandR(seed) - 1.0; s = x*x + y*y;
 	}
-	p[2] = 1.0 - 2.0*s; s = 2.0*sqrt(1.0 - s); p[0] = s*x; p[1] = s*y;
+	p[2] = 1.0 - 2.0*s;
+    s = 2.0*sqrt(1.0 - s); p[0] = s*x; p[1] = s*y;
 }
 void InitParams();
 void InitConf();
