@@ -1,0 +1,110 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage[margin=1in]{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or epsÂ§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+%usepackage{undertilde}
+\usepackage[numbered,framed]{matlab-prettifier}
+\usepackage{framed}
+
+\usepackage[T1]{fontenc}
+\usepackage{mathtools}  % loads »amsmath«
+\usepackage{physics}
+\usepackage{listings}
+
+\lstset{
+  language=C,                % choose the language of the code
+  numbers=left,                   % where to put the line-numbers
+  stepnumber=1,                   % the step between two line-numbers.        
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+  title=\lstname,                 % show the filename of files included with \lstinputlisting;
+}
+
+\setlength{\parskip}{0.5em}
+
+%SetFonts
+\newcommand\Rey{\mbox{\textit{Re}}}
+
+\title{\vspace{-6ex}\large PHYS 516: Methods of Computational Physics \\
+  \normalsize ASSIGNMENT 4- Molecular Dynamics Simulation}
+\author{Anup V Kanale}
+\date{\vspace{-3ex}\today}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\vspace{-2ex} The purpose of this assignment is to get familiar with basic concepts in ordinary differential equations using a simple molecular dynamics (MD) program, \textit{md.c}, as an example.
+\vspace{-2ex}
+\section{Liouville Theorem}
+\vspace{-2ex} Here, we show that for a particle in 1-D space, the velocity Verlet algorithm exactly preserves the phase space volume for arbitrary time discretization unit, $\Delta$.
+
+ Let $x$ be the position of the particle, $p = mv$ the momentum where, $m$ and $v$ are the mass and velocity of the particle. In the dimensionless form, $p = v$. Let the coordinate and momentum of the particle at time $t$ be $(x, p)$, and those at time $t + \Delta$ be $(x',p')$
+ \begin{align}
+  x' &= x + p \Delta + \frac{1}{2} a(x) + \Delta^2 \\
+  p' &= p + \frac{a(x) + a(x')}{2} \Delta
+ \end{align}
+
+To show this, it is enough to show that the Jacobian of the transformation  $(x'(x, p), p'(x, p))$ is $1$, i.e. $ J = \left| \dfrac{\partial (x', p')} {\partial (x, p)} \right| = 1$. The derivatives are calculated from Eq (1) and (2) as follows:
+ \begin{align*}
+ \pdv{x'}{x} &= 1 \\
+ \pdv{x'}{p} &= \Delta \\
+ \pdv{p'}{x} &= 0 \\
+ \pdv{p'}{p} &= 1
+ \end{align*}
+
+Therefore, the Jacobian is given by
+ \begin{align}
+ J &= \begin{vmatrix}
+   \dfrac{\partial x'}{\partial x} & \dfrac{\partial p'} {\partial x} \\[2ex]
+   \dfrac{\partial x'}{\partial p} & \dfrac{\partial p'}{\partial p}
+   \end{vmatrix} \\[1ex]
+   &= \begin{vmatrix}
+   1 & 0 \\[1ex]
+   \Delta & 1
+ \end{vmatrix} \\[1ex]
+  &= 0
+ \end{align}
+\pagebreak
+ 
+\section{Comparison of Euler and Velocity-Verlet Algorithms}
+\vspace{-2ex} Total energy of the system should be conserved. But due to numerical errors, energy conservation depends on the time-integration algorithm used. In this section, we illustrate this by comparing the Euler and Velocity-Verlet algorithms.
+ 
+\begin{framed}
+	\textbf{Euler Algorithm}
+	
+	Given a configuration ($\boldsymbol{r}_i(t), \boldsymbol{v}_i(t) | i = 1$ to $N_{atom}$)
+	
+	1. Compute the acceleration: $\boldsymbol{a}_i(t)$
+	
+	2. Update the positions: $\boldsymbol{r}_i(t + \Delta) \leftarrow \boldsymbol{r}_i(t) + \boldsymbol{v}_i(t) \Delta + \frac{1}{2}\boldsymbol{a}_i(t) \Delta^2$
+	
+	3. Update the velocities: $\boldsymbol{v}_i(t + \Delta) \leftarrow \boldsymbol{v}_i(t) + \boldsymbol{a}_i(t) \Delta $
+\end{framed}
+
+\begin{framed}
+	\textbf{Velocity-Verlet Algorithm}
+	
+	Given a configuration ($\boldsymbol{r}_i(t), \boldsymbol{v}_i(t) | i = 1$ to $N_{atom}$)
+	
+	1. Compute the acceleration: $\boldsymbol{a}_i(t)$
+	
+	2. $\boldsymbol{v}_i(t + \frac{\Delta}{2}) \leftarrow \boldsymbol{v}_i(t) + \boldsymbol{a}_i(t) \frac{\Delta}{2} $
+	
+	3. $\boldsymbol{r}_i(t + \Delta) \leftarrow \boldsymbol{r}_i(t) + \boldsymbol{v}_i(t+\frac{\Delta}{2}) \Delta $
+	
+	4. Compute the updated acceleration: $\boldsymbol{a}_i(t + \Delta)$
+	
+	5. $\boldsymbol{v}_i(t + \Delta) \leftarrow \boldsymbol{v}_i(t+\frac{\Delta}{2}) + \boldsymbol{a}_i(t +\Delta) \frac{\Delta}{2} $
+\end{framed}
+
+\end{document}
