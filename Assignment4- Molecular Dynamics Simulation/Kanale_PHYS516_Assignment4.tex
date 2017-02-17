@@ -8,6 +8,7 @@
 \usepackage{amssymb}
 %usepackage{undertilde}
 \usepackage[numbered,framed]{matlab-prettifier}
+\usepackage{framed}
 
 \usepackage[T1]{fontenc}
 \usepackage{mathtools}  % loads »amsmath«
@@ -76,5 +77,34 @@ Therefore, the Jacobian is given by
 \pagebreak
  
 \section{Comparison of Euler and Velocity-Verlet Algorithms}
- Total energy of the system should be conserved. But due to numerical errors, energy conservation depends on the time-integration algorithm used. In this section, we illustrate this by comparing the Euler and Velocity-verlet algorithms.
+\vspace{-2ex} Total energy of the system should be conserved. But due to numerical errors, energy conservation depends on the time-integration algorithm used. In this section, we illustrate this by comparing the Euler and Velocity-Verlet algorithms.
+ 
+\begin{framed}
+	\textbf{Euler Algorithm}
+	
+	Given a configuration ($\boldsymbol{r}_i(t), \boldsymbol{v}_i(t) | i = 1$ to $N_{atom}$)
+	
+	1. Compute the acceleration: $\boldsymbol{a}_i(t)$
+	
+	2. Update the positions: $\boldsymbol{r}_i(t + \Delta) \leftarrow \boldsymbol{r}_i(t) + \boldsymbol{v}_i(t) \Delta + \frac{1}{2}\boldsymbol{a}_i(t) \Delta^2$
+	
+	3. Update the velocities: $\boldsymbol{v}_i(t + \Delta) \leftarrow \boldsymbol{v}_i(t) + \boldsymbol{a}_i(t) \Delta $
+\end{framed}
+
+\begin{framed}
+	\textbf{Velocity-Verlet Algorithm}
+	
+	Given a configuration ($\boldsymbol{r}_i(t), \boldsymbol{v}_i(t) | i = 1$ to $N_{atom}$)
+	
+	1. Compute the acceleration: $\boldsymbol{a}_i(t)$
+	
+	2. $\boldsymbol{v}_i(t + \frac{\Delta}{2}) \leftarrow \boldsymbol{v}_i(t) + \boldsymbol{a}_i(t) \frac{\Delta}{2} $
+	
+	3. $\boldsymbol{r}_i(t + \Delta) \leftarrow \boldsymbol{r}_i(t) + \boldsymbol{v}_i(t+\frac{\Delta}{2}) \Delta $
+	
+	4. Compute the updated acceleration: $\boldsymbol{a}_i(t + \Delta)$
+	
+	5. $\boldsymbol{v}_i(t + \Delta) \leftarrow \boldsymbol{v}_i(t+\frac{\Delta}{2}) + \boldsymbol{a}_i(t +\Delta) \frac{\Delta}{2} $
+\end{framed}
+
 \end{document}
