@@ -114,7 +114,7 @@ void ComputeAccel() {
 	int j1,j2,n,k;
 
 	rrCut = RCUT*RCUT;
-	for (n=0; n<nAtom; n++) for (k=0; k<3; k++) ra[n][k] = 0.0;
+	for (n=0; n<nAtom; n++) for (k=0; k<3; k++) ra[n][k] = 0.0; //Initialise acceleration to zero
 	potEnergy = 0.0;
 
 	/* Doubly-nested loop over atomic pairs */
@@ -146,15 +146,24 @@ void ComputeAccel() {
 /*----------------------------------------------------------------------------*/
 void SingleStep() {
 /*------------------------------------------------------------------------------
-	r & rv are propagated by DeltaT in time using the velocity-Verlet method.
+	r & rv are propagated by DeltaT in time using:
 ------------------------------------------------------------------------------*/
 	int n,k;
     
+    /*-----------------------------
+     Euler Scheme
+    -----------------------------*/
     for (n=0; n<nAtom; n++)
-        for (k=0; k<3; k++) r[n][k] = r[n][k] + DeltaT*rv[n][k];
+        for (k=0; k<3; k++) {
+        	r[n][k] = r[n][k] + DeltaT*rv[n][k] + 0.5*ra[n][k]*DeltaT*DeltaT;
+        	rv[n][k] = rv[n][k] + DeltaT*ra[n][k];
+        } 
     ApplyBoundaryCond();
     ComputeAccel();
-    
+
+    /*-----------------------------
+     Velocity Verlet Scheme
+    -----------------------------*/    
 //	HalfKick();  /* First half kick to obtain v(t+Dt/2) */
 //	for (n=0; n<nAtom; n++)  /* Update atomic coordinates to r(t+Dt) */
 //		for (k=0; k<3; k++) r[n][k] = r[n][k] + DeltaT*rv[n][k];
@@ -179,7 +188,7 @@ void ApplyBoundaryCond() {
 	Applies periodic boundary conditions to atomic coordinates.
 ------------------------------------------------------------------------------*/
 	int n,k;
-	*for (n=0; n<nAtom; n++)
+	for (n=0; n<nAtom; n++)
 		for (k=0; k<3; k++) 
 			r[n][k] = r[n][k] - SignR(RegionH[k],r[n][k])
 			                  - SignR(RegionH[k],r[n][k]-Region[k]);
