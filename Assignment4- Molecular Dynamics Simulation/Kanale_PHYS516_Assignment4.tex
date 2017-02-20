@@ -6,6 +6,7 @@
 \usepackage{graphicx}				% Use pdf, png, jpg, or epsÂ§ with pdflatex; use eps in DVI mode
 								% TeX will automatically convert eps --> pdf in pdflatex		
 \usepackage{amssymb}
+\usepackage{courier}
 %usepackage{undertilde}
 \usepackage[numbered,framed]{matlab-prettifier}
 \usepackage{framed}
@@ -106,5 +107,26 @@ Therefore, the Jacobian is given by
 	
 	5. $\boldsymbol{v}_i(t + \Delta) \leftarrow \boldsymbol{v}_i(t+\frac{\Delta}{2}) + \boldsymbol{a}_i(t +\Delta) \frac{\Delta}{2} $
 \end{framed}
+From the plot below, we can clearly see that Euler scheme blows up whereas Velocity Verlet scheme is stable and conserves total energy of the system.
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=0.43]{AlgorithmVariants_EnergyPlots.jpg}
+	\caption{Comparison of total energy conservation for Euler and Velocity verlet algorithms}
+	\end{figure}
+	
+The code downloaded from the course website was used, which implements the Velocity Verlet algorithm by default. Euler scheme was implemented by modifying the \texttt{SingleStep()} section in the code. The time step was changed to $0.001$, but for all the other parameters, the default values were used from the input file \texttt{md.in}. 
+
+Since the code is rather long and the modifications were minor, just the parts with the numerical schemes are shown below.
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=0.8]{EulerScheme.jpg}
+	\caption{Euler scheme implementation}
+	\end{figure}
+	
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=0.8]{VelVerletScheme.jpg}
+	\caption{Euler scheme implementation}
+	\end{figure}
 
 \end{document}

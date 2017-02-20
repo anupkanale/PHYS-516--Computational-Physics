@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
 	}
 	cpu2 = ((double) clock())/CLOCKS_PER_SEC;
 	cpu = cpu2-cpu1;
-	printf("%le %le %le\n",cpu1, cpu2, cpu);
+	//printf("%le %le %le\n",cpu1, cpu2, cpu);
 	return 0;
 }
 
@@ -42,7 +42,7 @@ void InitParams() {
 	scanf("%le",&DeltaT);
 	scanf("%d",&StepLimit);
 	scanf("%d",&StepAvg);
-    
+
 	/* Computes basic parameters */
 	DeltaTH = 0.5*DeltaT;
 	for (k=0; k<3; k++) {
@@ -60,7 +60,7 @@ void InitParams() {
 void InitConf() {
 /*------------------------------------------------------------------------------
 	r are initialized to face-centered cubic (fcc) lattice positions.  
-	rv are initialized with a random velocity corresponding to Temperature.
+	rv are initialized with a random velocity corresponding to Temperature.  
 ------------------------------------------------------------------------------*/
 	double c[3],gap[3],e[3],vSum[3],vMag;
 	int j,n,k,nX,nY,nZ;
@@ -87,15 +87,15 @@ void InitConf() {
 		}
 	}
 
-	/* Generates random (random in direction) velocities */
+	/* Generates random velocities */
 	seed = 13597.0;
-	vMag = sqrt(3*InitTemp); // Calculate magnitude based on temperature
-	for(k=0; k<3; k++) vSum[k] = 0.0; // initialise sum to zero
-	for(n=0; n<nAtom; n++) { // for each atom
-		RandVec3(e,&seed);   // generate a random unit vector
-		for (k=0; k<3; k++) { // add component of unit vector in all 3 directions
+	vMag = sqrt(3*InitTemp);
+	for(k=0; k<3; k++) vSum[k] = 0.0;
+	for(n=0; n<nAtom; n++) {
+		RandVec3(e,&seed);
+		for (k=0; k<3; k++) {
 			rv[n][k] = vMag*e[k];
-			vSum[k] = vSum[k] + rv[n][k]; // keep adding velocity of an atom in all 3 directions
+			vSum[k] = vSum[k] + rv[n][k];
 		}
 	}
 	/* Makes the total momentum zero */
@@ -114,7 +114,7 @@ void ComputeAccel() {
 	int j1,j2,n,k;
 
 	rrCut = RCUT*RCUT;
-	for (n=0; n<nAtom; n++) for (k=0; k<3; k++) ra[n][k] = 0.0; //Initialise acceleration to zero
+	for (n=0; n<nAtom; n++) for (k=0; k<3; k++) ra[n][k] = 0.0;
 	potEnergy = 0.0;
 
 	/* Doubly-nested loop over atomic pairs */
@@ -146,30 +146,19 @@ void ComputeAccel() {
 /*----------------------------------------------------------------------------*/
 void SingleStep() {
 /*------------------------------------------------------------------------------
-	r & rv are propagated by DeltaT in time using:
+	r & rv are propagated by DeltaT in time using the velocity-Verlet method.
 ------------------------------------------------------------------------------*/
 	int n,k;
-    
-    /*-----------------------------
-     Euler Scheme
-    -----------------------------*/
-    for (n=0; n<nAtom; n++)
-        for (k=0; k<3; k++) {
-        	r[n][k] = r[n][k] + DeltaT*rv[n][k] + 0.5*ra[n][k]*DeltaT*DeltaT;
-        	rv[n][k] = rv[n][k] + DeltaT*ra[n][k];
-        } 
-    ApplyBoundaryCond();
-    ComputeAccel();
 
-    /*-----------------------------
-     Velocity Verlet Scheme
-    -----------------------------*/    
-//	HalfKick();  /* First half kick to obtain v(t+Dt/2) */
-//	for (n=0; n<nAtom; n++)  /* Update atomic coordinates to r(t+Dt) */
-//		for (k=0; k<3; k++) r[n][k] = r[n][k] + DeltaT*rv[n][k];
-//	ApplyBoundaryCond();
-//	ComputeAccel();  /* Computes new accelerations, a(t+Dt) */
-//	HalfKick();  /* Second half kick to obtain v(t+Dt) */
+	for (n=0; n<nAtom; n++){  /* For each atom */
+		for (k=0; k<3; k++){ /*Update atomic coordinates to r(t+Dt) */
+			r[n][k] = r[n][k] + DeltaT*rv[n][k] + 0.5*DeltaT*DeltaT*ra[n][k];
+			rv[n][k] = rv[n][k] + DeltaT*ra[n][k];
+		}
+	}
+
+	ApplyBoundaryCond();
+	ComputeAccel();  /* Computes new accelerations, a(t+Dt) */
 }
 
 /*----------------------------------------------------------------------------*/
@@ -188,7 +177,7 @@ void ApplyBoundaryCond() {
 	Applies periodic boundary conditions to atomic coordinates.
 ------------------------------------------------------------------------------*/
 	int n,k;
-	for (n=0; n<nAtom; n++)
+	for (n=0; n<nAtom; n++) 
 		for (k=0; k<3; k++) 
 			r[n][k] = r[n][k] - SignR(RegionH[k],r[n][k])
 			                  - SignR(RegionH[k],r[n][k]-Region[k]);
