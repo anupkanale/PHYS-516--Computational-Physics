@@ -3,8 +3,8 @@ Molecular dynamics (MD) simulation with the Lennard-Jones potential.
 
 USAGE
 
-%cc -o md md.c -lm
-%md < md.in (see md.h for the input-file format)
+% cc -o md md.c -lm
+% ./md < md.in (see md.h for the input-file format)
 *******************************************************************************/
 #include <stdio.h>
 #include <math.h>
@@ -13,24 +13,41 @@ USAGE
 
 int main(int argc, char **argv) {
 	double cpu, cpu1, cpu2; //for measuring running time of the program
+	
+	double denm=0;
+	int outer,n,k;
+
 	InitParams();
 	InitConf();
 	ComputeAccel();  /* Computes initial accelerations */ 
 	cpu1 = ((double) clock())/CLOCKS_PER_SEC;
-	for (stepCount=1; stepCount<=StepLimit; stepCount++) {
-        
-        // VAC MODIFICATION
-        if(stepCount%STEPcorr==0){
-            for (n=0; n<nAtom; n++)
-                for (k=0; k<3; k++)  v0[n][k] = rv[n][k];
-        }
-        calc_vac(stepCount)/;
-		SingleStep(); 
-		if (stepCount%StepAvg == 0) EvalProps();
+
+	for(outer=1; outer<=NSAMPLE; outer++){
+		for(stepCount=1; stepCount<=StepLimit; stepCount++) {
+
+			SingleStep();
+
+	        // VAC MODIFICATION
+	        if(stepCount==1){
+	            for (n=0; n<nAtom; n++){
+	                for (k=0; k<3; k++){
+	                   	v0[n][k] = rv[n][k];
+	                   	denm += v0[n][k]*v0[n][k];
+	                }
+	            }
+	        }
+
+	        calc_vac(stepCount);
+			if (stepCount%StepAvg == 0) EvalProps();
+		}
+    }
+
+    /* Normalize autocorrelation by the square of v0*/
+    for(stepCount=1; stepCount<=StepLimit; stepCount++) {
+    	vac[stepCount] = vac[stepCount]/denm;
+	    printf("%9.6f %9.6f\n", stepCount*DeltaT,vac[stepCount]);
 	}
-    
-    vac = vacSum[]/(v0[][]*v0[][])
-    
+	
 	cpu2 = ((double) clock())/CLOCKS_PER_SEC;
 	cpu = cpu2-cpu1;
 	//printf("%le %le %le\n",cpu1, cpu2, cpu);
@@ -38,12 +55,12 @@ int main(int argc, char **argv) {
 }
 
 // VAC MODIFICATION
-void calc_vac(step){
+void calc_vac(int step){
     int n,k;
     
     for (n=0; n<nAtom; n++) //time summation over atoms
         for (k=0; k<3; k++) //dot product
-            vacSum[step] += rv[n][k] * v0[n][k];
+            vac[step] += rv[n][k] * v0[n][k];
 }
 
 
@@ -63,13 +80,16 @@ void InitParams() {
 	scanf("%d",&StepLimit);
 	scanf("%d",&StepAvg);
     
-    vacSum = 0;
-    
 	/* Computes basic parameters */
 	DeltaTH = 0.5*DeltaT;
 	for (k=0; k<3; k++) {
 		Region[k] = InitUcell[k]/pow(Density/4.0,1.0/3.0); //Region = Lx, Ly,Lz
 		RegionH[k] = 0.5*Region[k];
+	}
+
+	/* Initialise vac array */
+	for(k=1; k<=STEPCORR; k++) {
+		vac[stepCount]=0.0;
 	}
     
 	/* Constants for potential truncation */
@@ -225,6 +245,6 @@ void EvalProps() {
 	temperature = kinEnergy*2.0/3.0;
 
 	/* Print the computed properties */
-	printf("%9.6f %9.6f %9.6f %9.6f\n",
-	stepCount*DeltaT,temperature,potEnergy,totEnergy);
+	// printf("%9.6f %9.6f %9.6f %9.6f\n",
+	// stepCount*DeltaT,temperature,potEnergy,totEnergy);
 }

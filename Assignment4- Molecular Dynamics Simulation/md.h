@@ -30,6 +30,8 @@ void RandVec3(double *p, double *seed) {
 	}
 	p[2] = 1.0 - 2.0*s; s = 2.0*sqrt(1.0 - s); p[0] = s*x; p[1] = s*y;
 }
+
+void calc_vac();
 void InitParams();
 void InitConf();
 void ComputeAccel();
@@ -46,6 +48,7 @@ double InitTemp;    /* Starting temperature (in reduced unit) */
 double DeltaT;      /* Size of a time step (in reduced unit) */
 int StepLimit;      /* Number of time steps to be simulated */
 int StepAvg;        /* Reporting interval for statistical data */
+double vacSum;
 
 /* Constants ******************************************************************/
 
@@ -66,7 +69,7 @@ double totEnergy;     /* Total energy */
 double temperature;   /* Current temperature */
 int stepCount;        /* Current time step */
 
-double v0[NMAX][3]      // v_i(t_0)
-double vacSum           // numerator of vac(t)
-double vac[STEPCORR]    // vac(t)
+double v0[NMAX][3];      // v_i(t_0)
+double vac[STEPCORR];    // vac(t)
+
 /******************************************************************************/
