@@ -128,5 +128,38 @@ Since the code is rather long and the modifications were minor, just the parts w
 	\includegraphics[scale=0.8]{VelVerletScheme.jpg}
 	\caption{Euler scheme implementation}
 	\end{figure}
+	
+\section{Velocity Autocorrelation Function}
+ Here, we calculate the velocity autocorrelation function
+ 	\begin{equation}
+ 	Z(t) = \frac{\langle \vec{v}_i(t+t_0) \cdot \vec{v}_i(t_0) \rangle}{\langle \vec{v}_i(t_0) \cdot \vec{v}_i(t_0) \rangle} = \frac{\sum \limits_{t_0} \sum \limits_{i=1}^N \vec{v}_i(t+t_0) \cdot \vec{v}_i(t_0)}{\sum \limits_{t_0} \sum \limits_{i=1}^N  \vec{v}_i(t_0) \cdot \vec{v}_i(t_0)}
+ 	\end{equation}
+ 	where $\vec{v}_i(t)$ is the velocity of the $i$-th atom at time $t$. The bracket denotes averages over
+atoms, $i$, and the time origin, $t_0$.
 
+The \texttt{md.c} program from the course website was modified to calculate autocorrelation function. In summary, the \texttt{calc\_vac} function was added to calculate the numerator term of Eqn (6), and some lines were added in the \texttt{main} 
+function-- variable \texttt{denm} to accumulate the sums in the denominator term and an outer loop to run the simulation \texttt{NSAMPLE} times and take averages. The required variable were added in the \texttt{md.h} header file, but are not shown here as these additions were not significant. The modified part of the \texttt{md.c} is shown below.
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=0.35]{mdVerlet_vac_pic.jpg}
+	\caption{Modified Code block}
+	\end{figure}
+
+The program was run using \texttt{InitUcell = {3,3,3}, DeltaT = 0.005} and \texttt{StepAvg = 10}, for \texttt{StepLimit = 2000} steps to calculate VAC in the time range of \texttt{[0, tmax = DeltaT*StepLimit = 0.005*2000 = 10.0]} for both gas phase (\texttt{Density = 0.1, InitTemp = 1.0)} and solid phase \texttt{(Density = 1.0, InitTemp = 0.1}). As The results are shown below:
+	\begin{figure}[!htbp]
+	\centering
+		\begin{tabular}{@{}c@{}}
+		\includegraphics[scale=0.55]{vacGas.jpg} \\[\abovecaptionskip]
+		\tiny (a) Velocity autocorrelation vs time for gas phase
+		\end{tabular}
+		\begin{tabular}{@{}c@{}}
+		\includegraphics[scale=0.4]{vacSolid} \\[\abovecaptionskip]
+		\tiny (b) Velocity autocorrelation vs. time for solid phase
+		\end{tabular}
+		
+	\end{figure}
+	
+As expected, vac for gas phase dies down from $1$ to $0$ exponentially while for the the solid phase it just fluctuates about zero.
+\pagebreak
+\section{Split Operator Formalism- Deriving the Velocity Verlet algorithm}
 \end{document}
