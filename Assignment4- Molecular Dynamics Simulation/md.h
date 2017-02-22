@@ -8,6 +8,9 @@ File md.h is an include file for program md.c.
 #define D2P31M 2147483647.0
 #define DMUL 16807.0
 
+#define NSAMPLE 100  //average over t_0
+#define STEPCORR 2000
+
 /* Functions & function prototypes ********************************************/
 
 double SignR(double v,double x) {if (x > 0) return v; else return -v;}
@@ -62,5 +65,8 @@ double potEnergy;     /* Potential energy */
 double totEnergy;     /* Total energy */
 double temperature;   /* Current temperature */
 int stepCount;        /* Current time step */
-/******************************************************************************/
 
+double v0[NMAX][3]      // v_i(t_0)
+double vacSum           // numerator of vac(t)
+double vac[STEPCORR]    // vac(t)
+/******************************************************************************/
