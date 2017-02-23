@@ -162,4 +162,87 @@ The program was run using \texttt{InitUcell = {3,3,3}, DeltaT = 0.005} and \text
 As expected, vac for gas phase dies down from $1$ to $0$ exponentially while for the the solid phase it just fluctuates about zero.
 \pagebreak
 \section{Split Operator Formalism- Deriving the Velocity Verlet algorithm}
+Consider a conservative system of $N$ atoms which can translate along $x$, $y$ and $z$ axes. Hence, the total degrees of freedom of the system are
+	\begin{equation}
+	f = 3N
+	\end{equation}
+Let $x$ denote the position, $p$ momentum, and $V$ the potential energy of the system. Then, the Hamiltonian of the system is given by
+	\begin{equation}
+	H = \sum \limits_{j=1}^N \frac{p_j}{2m} + V(x_1, x_2, ...., x_f)
+	\end{equation}
+Differentiating the above equation to get $\dot{x}_j$ and $\dot{p}_j$, and noting that the system is conservative,
+	\begin{align}
+	\dot{x}_j &= \pdv{H}{p_j} = \frac{p_j}{m} \\
+	\dot{p}_j &= -\pdv{H}{x_j} = -\pdv{V}{x_j} = F_j
+	\end{align}
+Now, for any function of the form $\phi(x_1, x_2, ...., x_f, p_1, p_2, ...., p_f)$,
+	\begin{align}
+	\phi &= \left(\sum \limits_{j=1}^f \dot{x}_j \pdv{}{x}_j + \dot{p}_j \pdv{}{p}_j \right) \phi \\
+		&= \underbrace{\left(\sum \limits_{j=1}^f \pdv{H}{p_j} \pdv{}{x}_j + \pdv{H}{x_j} \pdv{}{p}_j \right)}_{\text iL} \phi \\
+		&= iL \phi
+	\end{align}
+where $L$ is defined as the Louiville operator.
+
+Now, consider a special function $\Gamma(x_j, p_j)$ such that,
+	\begin{align}
+	\frac{d \Gamma}{dt} = iL \Gamma
+	\end{align}
+This equation integrated to get $\Gamma$.
+	\begin{equation}
+	\Gamma (t) = \Gamma (0) e^{iLt} 
+	\end{equation}
+This can be proved as follows. Take the Taylor expansion of the exponential term as follows:
+	\begin{equation}
+	e^{iLt} = 1 + iLt - \frac{L^2t^2}{2!} -\frac{iL^3 t^3}{3!} + ....
+	\end{equation}
+Taking the derivative w.r.t $t$,
+	\begin{align}
+	\frac{d e^{iLt}}{dt} &= iL - L^2t -\frac{iL^3 t^2}{2} + .... \\
+				 &= iL \left( 1 + iLt - \frac{L^2t^2}{2!}+ .... \right) \\
+				 &= iL e^{iLt}\\
+	 \times \Gamma(0), \qquad \qquad  \frac{d (\Gamma(0)e^{iLt})}{dt} &= \Gamma(0) iL e^{iLt} \\
+	\therefore \frac{d\Gamma}{dt} &= iL \Gamma
+	\end{align}
+Let us define the classical propagator as 
+	\begin{equation}
+	 U(t) = e^{iLt}
+	\end{equation}
+Note that $U(t)$ is unitary, i.e., $U(-t)  =U(t)$.
+
+Let us now decompose the Louiville operator as follows,
+	\begin{align}
+	iL &= iL_1 + iL_2 \\
+	   &= \underbrace{\sum \limits_j F_j(x_j) \pdv{}{p_j}}_{iL1} + \underbrace{\sum \limits_j\frac{p_j}{m}\pdv{}{x_j}}_{iL2}
+	\end{align}
+Now, we can write the exponential of the above decomposition using Trotter expansion as
+	\begin{align}
+	e^{i(L_1 + L_2)t} = (e^{\frac{iL_1 \Delta t}{2}} e^{iL_2 \Delta t} e^{\frac{iL_1 \Delta t}{2}})^P
+	\end{align}
+where $\Delta t = t/P$. This allows us to define a discrete time propagator as
+	\begin{align}
+	G(\Delta t) &= U_1(\frac{\Delta t}{2}) U_2(\Delta t) U_1(\frac{\Delta t}{2}) \\
+	&= e^{\frac{iL_1 \Delta t}{2}} e^{iL_2 \Delta t} e^{\frac{iL_1 \Delta t}{2}}
+	\end{align}
+Since we know that $U(t)$ is unitary, it means that $G(\Delta t)$ will also be unitary. Now,let us substitute the definition of the split operators from Eqn (24).
+	\begin{equation}
+	G(\Delta t) = e^{\Delta t/2 F(x) \pdv{}{p}} e^{ \Delta t \dot{x} \pdv{}{x}} e^{\Delta t/2 F(x) \pdv{}{p}}
+	\end{equation}
+Operating this on the $\{x(0), p(0) \}$ and using the property for any operator of the form $e^{c \pdv{}{q}}$
+	\begin{equation}
+	e^{c \pdv{}{q}} f(q) = f(q+c)
+	\end{equation}
+where $c$ is independent of $q$ (\textit{I don't know how to derive this!}).
+
+Using this, we can derive that
+	\begin{align}
+	x(\Delta t) &= x(0) + \Delta t \dot{x}(0)+\frac{(\Delta t)^2}{2} \frac{F[x(0)]}{m} \\	
+	\dot{x}(\Delta t) &= \dot{x}(0) + \frac{\Delta t}{2m} \{F[x(0)] + F[x(\Delta t] \}
+	\end{align}	
+which can be written in the known form on the velocity-Verlet algorithm
+	\begin{align}
+	\dot{x}(\frac{\Delta t}{2}) &= \dot{x}(0) + \frac{\Delta t}{2m} F[x(0)] \\
+	x(\Delta t) &= x(0) + \Delta t \dot{x}(\frac{\Delta t}{2}) \\
+	\dot{x}(\Delta t) &= \dot{x}(\frac{\Delta t}{2}) + \frac{\Delta t}{2m} F[x(\Delta t)]
+	\end{align}
+
 \end{document}
