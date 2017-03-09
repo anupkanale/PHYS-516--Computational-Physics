@@ -1,0 +1,168 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage[margin=1in]{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or epsÂ§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+\usepackage{undertilde}
+
+\usepackage[T1]{fontenc}
+\usepackage{mathtools}  % loads »amsmath«
+\usepackage{physics}
+
+\setlength{\parskip}{0.5em}
+%SetFonts
+
+%SetFonts
+\newcommand\Rey{\mbox{\textit{Re}}}
+
+\title{\large PHYS 516: Methods of Computational Physics \\
+  \normalsize ASSIGNMENT 1- Writing like a Computational Scientist}
+\author{Anup V Kanale}
+\date{\today}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\section{Problem}
+Given a $2 \times 2$ matrix
+\begin{equation}
+\boldsymbol{A} = 
+\begin{bmatrix}
+a && b \\
+b && a
+\end{bmatrix}
+\end{equation}
+where $a$ and $b$ are real numbers, derive a closed form expression for its $n^{th}$ power $\boldsymbol{A}^n$.
+\section{Solution}
+Consider the Eigenvalue problem,
+\begin{equation}
+\boldsymbol{A} \boldsymbol{u} = \lambda \boldsymbol{u}
+\end{equation}
+where A is the given matrix, $\lambda$ is the eigenvalue, and $\boldsymbol{u}= \begin{bmatrix}
+u \\ v
+\end{bmatrix}$ is the corresponding eigenvector.
+Eq(1) can be equivalently written as
+\begin{align}
+\boldsymbol{A} \boldsymbol{u} - \lambda \boldsymbol{u} &= 0 \\
+(\boldsymbol{A}-\lambda \boldsymbol{I})\boldsymbol{u} &= 0
+\end{align}
+where $\boldsymbol{I}$ is the identity matrix of the same dimensions as $\boldsymbol{A}$. For nontrivial solutions ($u=v \neq 0$), the matrix on the LHS must be singular. Mathematically,
+\begin{equation}
+det(\boldsymbol{A}-\lambda I) = 0
+\end{equation}
+Substituting the matrix given in this problem for A, we get
+\begin{equation}
+\begin{vmatrix}
+a-\lambda && b \\
+b && a-\lambda \\
+\end{vmatrix} = 0
+\end{equation}
+To obtain $\lambda$, let us evaluate this determinant.
+\begin{align}
+(a-\lambda)^2 - b^2 &= 0 \\
+\Rightarrow \qquad \qquad (a-\lambda)^2 &= b^2 \\
+\Rightarrow \quad \qquad \qquad \ a-\lambda &= \pm b \\
+\Rightarrow \qquad \qquad \qquad \quad \lambda &= a \pm b
+\end{align}
+Therefore, there are two eigenvalues-- $\lambda_+ = a + b$ and $\lambda_- = a - b$.
+
+Let us now evaluate the eigenvector corresponding to each of these eigenvalues. Using Eq(4)
+\begin{equation}
+\begin{bmatrix}
+a-\lambda_+ && b\\
+b && a-\lambda_+
+\end{bmatrix} \begin{bmatrix}
+u_+ \\ v_+
+\end{bmatrix} = \begin{bmatrix}
+0 \\ 0
+\end{bmatrix}
+\end{equation}
+Plugging in the value of $\lambda_+$, we obtain the eigenvector as
+\begin{equation}
+\begin{bmatrix}
+u_+ \\ v_+
+\end{bmatrix}= \begin{bmatrix}
+1 \\ 1
+\end{bmatrix}
+\end{equation}
+Similarly, the eigenvector corresponding to $\lambda_-$ is obtained to be
+\begin{equation}
+\begin{bmatrix}
+u_+ \\ v_+
+\end{bmatrix}= \begin{bmatrix}
+1 \\ -1
+\end{bmatrix}
+\end{equation}
+Now, let us define \textbf{D} as a matrix containing the eigenvalues along it's diagonal and \textbf{U} as a matrix which contains the eigenvectors as its columns, in the same order as the eigenvalues in \textbf{D}.
+\begin{align}
+\boldsymbol{D} &= \begin{bmatrix}
+\lambda_+ && 0 \\
+0 && \lambda_-
+\end{bmatrix} \\
+\boldsymbol{U} &= \begin{bmatrix}
+u_+ && u_- \\
+v_+ && v_-
+\end{bmatrix}
+\end{align}
+Hence, using Eq(2), the above two equations can be expressed together in matrix form as
+\begin{equation}
+\boldsymbol{A} \boldsymbol{U} = \boldsymbol{U} \boldsymbol{D}
+\end{equation}
+Right-multiplying both sides by $\boldsymbol{U}^{-1}$,
+\begin{equation}
+\boldsymbol{A} = \boldsymbol{U} \boldsymbol{D} \boldsymbol{U}^{-1}
+\end{equation}
+Therefore,
+\begin{equation}
+\boldsymbol{A}^n = \boldsymbol{U} \boldsymbol{D}^n \boldsymbol{U}^{-1}
+\end{equation}
+In this problem,
+\begin{align}
+\boldsymbol{U} = \begin{bmatrix}
+1 && 1 \\
+1 && -1
+\end{bmatrix} \implies
+\boldsymbol{U}^{-1} = 0.5\begin{bmatrix}
+1 && 1 \\
+1 && -1
+\end{bmatrix}
+\end{align}
+Plugging in these values,
+\begin{equation}
+\begin{bmatrix}
+a && b \\
+b && a
+\end{bmatrix} = 0.5 \begin{bmatrix}
+1 && 1 \\
+1 && -1
+\end{bmatrix} \begin{bmatrix}
+a+b && 0 \\
+0 && a-b
+\end{bmatrix} \begin{bmatrix}
+1 && 1 \\
+1 && -1
+\end{bmatrix}
+\end{equation}
+Therefore,
+\begin{align}
+\begin{bmatrix}
+a && b \\
+b && a
+\end{bmatrix}^n &= 0.5 \begin{bmatrix}
+1 && 1 \\
+1 && -1
+\end{bmatrix} \begin{bmatrix}
+(a+b)^n && 0 \\
+0 && (a-b)^n
+\end{bmatrix} \begin{bmatrix}
+1 && 1 \\
+1 && -1
+\end{bmatrix} \\
+&= 0.5\begin{bmatrix}
+(a+b)^n + (a-b)^n && (a+b)^n - (a-b)^n \\
+(a+b)^n - (a-b)^n && (a+b)^n + (a-b)^n
+\end{bmatrix}
+\end{align}
+\end{document}
