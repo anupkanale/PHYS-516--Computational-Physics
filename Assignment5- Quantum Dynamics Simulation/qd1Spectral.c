@@ -12,13 +12,26 @@ USAGE
 
 int main(int argc, char **argv) {
 	int step; /* Simulation loop iteration index */
-	int m;
+	int i,m;
 
 	init_param();  /* Read input parameters */
 	init_prop();   /* Initialize the kinetic & potential propagators */
 	init_wavefn(); /* Initialize the electron wave function */
+
+	double refl[Nstep];
+	double tran[Nstep];
+
 	for (step=1; step<=Nstep; step++) {
 		single_step(); /* Time propagation for one step, DT */
+
+		refl[step] = 0;
+		tran[step] = 0;
+		for (i=0; i<NX/2; i++)
+			refl[step] += (psi[2*i+0]*psi[2*i+0] + psi[2*i+1]*psi[2*i+1])*dx; 
+		for (i=NX/2; i<NX; i++)
+			tran[step] += (psi[2*i+0]*psi[2*i+0] + psi[2*i+1]*psi[2*i+1])*dx;
+		
+		// printf("%le %le %le\n", DT*step, refl[step], tran[step]);
 
 		if (step%NECAL==0) {
 			calc_energy();
