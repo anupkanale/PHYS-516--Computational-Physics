@@ -8,20 +8,22 @@ void init_param();
 void init_prop();
 void init_wavefn();
 void single_step();
-void pot_prop();
-void kin_prop(int);
+void prop(double []);
 void periodic_bc();
 void calc_energy();
+void four1(double [], unsigned int, int);
+
 
 /* Input parameters ***********************************************************/
 double LX;       /* Simulation box length */
 double DT;       /* Time discretization unit */
-int NSTEP;       /* Number of simulation steps */
+int Nstep;       /* Number of simulation steps */
 int NECAL;       /* Interval to calculate energies */
 double X0,S0,E0; /* Center-of-mass, spread & energy of initial wave packet */
 double BH,BW;    /* Barrier height & width */
 double EH;       /* Edge potential height */
-double km;		 /* wave nunmber */
+
+double km[NX];		 /* Wave Number */
 
 /* Arrays **********************************************************************
 psi[NX+2][2]:    psi[i][0|1] is the real|imaginary part of the wave function
@@ -36,12 +38,14 @@ blx[2][NX+2][2]: blx[0|1][i][] is the half|full-step lower off-diagonal kinetic
 v[NX+2]:         v[i] is the potential energy at mesh point i
 u[NX+2][2]:      u[i][] is the potential propagator on i (real|imaginary part)
 *******************************************************************************/
-double psi[NX+2];
-double wrk[NX+2][2];
+double psi[NX];
+double wrk[NX+2];
 double al[2][2];
 double bux[2][NX+2][2],blx[2][NX+2][2];
 double v[NX+2];
-double u[NX+2][2];
+double u[2*NX];
+double uv[2*NX];
+double ut[2*NX];
 
 /* Variables *******************************************************************
 dx   = Mesh spacing
