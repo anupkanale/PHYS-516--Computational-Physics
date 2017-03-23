@@ -45,6 +45,61 @@
 \begin{document}
 \vspace{-6ex}\maketitle
 
+\section{The Hamiltonian Matrix}
+A programw as written to set up the Hamiltonian matrix and diagonalize it using the functions \texttt{tred2.c} and \texttt{tqli.c} from the book \textit{Numerical Recipes}. The code is attached in the appendix, along with the plotting codes.
 
+\section{Effect of lattice constants on density of state}
+ The density of states (DOS) of a system describes the number of states per interval of energy at each energy level that are available to be occupied. It is given by 
+ 	\begin{equation}
+ 	D(\varepsilon) = \sum \limits_{\nu=1}^{n4} \frac{1}{\sqrt{\pi}\sigma} \exp (\frac{-(\varepsilon - \varepsilon_\nu)^2}{\sigma^2})
+ 	\end{equation}
+ where $\sigma = 0.1 eV$ is the energy spread given to each energy eigenvalue, $\varepsilon_\nu$. The following parameters were used: \texttt{InitUcell[0] = InitUcell[1] = InitUcell[2] = 1}, \texttt{nAtoms = 8} and \texttt{LCNS = 1.8 $\times$ 5.43 $A$, 1.4 $\times$ 5.43 $A$, 1 $\times$ 5.43 $A$}, \texttt{$k_BT$ = 0.2 eV}.
+ 
+ The plots below show the Density of States for different lattice constant values. We see that when the lattice contant is the largest (\texttt{LCNS = 1.8 $\times$ 5.43 $A$}), there are two sharp peaks, which means that when the atoms are furthest from each other, the density is high in the energy states $E_s$ and $E-p$ and zero everywhere else.
+ 
+ When LCNS reduces slightly, the atoms are closer together and the density in the states in between increases.
+ 
+ For the case with the least LCNS ((\texttt{LCNS = 1.0 $\times$ 5.43 $A$})), the atoms are very close together so the energy states in between also start getting populated.
+
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=0.55]{dos_1pt8.eps}
+	\includegraphics[scale=0.55]{dos_1pt4.eps}
+	\includegraphics[scale=0.55]{dos_1pt0.eps}
+	\caption{Density of States for 8 atoms}
+	\end{figure}
+
+
+\section{Effect of number of atoms on density of state}
+The Density of states with a different number of periodic unit cells, i.e., a different number of atoms was plotted as shown in the figure below, for \texttt{LCNS = 1.0 $\times$ 5.43 $A$}. We see that the density of states has  a larger spread now as more atoms interact with each other.
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=0.55]{dos_1pt0_Ucell2.eps}
+	\caption{Density of States for 64 atoms}
+	\end{figure}
+
+
+\section{Fermi Distribution}
+Fermi distribution represents the probablity of a state of energy being occupied by an electron. It is given by
+	\begin{equation}
+	f({\varepsilon_\nu}) = \frac{2}{ \exp{\frac{\varepsilon_\nu - \mu}{k_BT}} +1}
+	\end{equation}
+
+I calculate the Fermi energy by first finding the chemical potential $\mu$ using Newton-Raphson method, using the fact that the integral of the distribution over energy gives the total number of electrons. Mathetically,
+	\begin{equation}
+	\sum \limits_\nu f({\varepsilon_\nu}) = 4N
+	\end{equation}
+The parameters used for the simulation were: \texttt{InitUcell[0] = InitUcell[1] = InitUcell[2] = 2}, \texttt{nAtoms = 64}, \texttt{LCNS = 5.43 $A$}, \texttt{$k_BT$ = 0.2 eV} and \texttt{eigenenergies = 256}.
+The plot below shows the distribution
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=0.5]{fermiDist.eps}
+	\end{figure}
+
+\pagebreak
+\appendix
+\section{C Program}
+\lstinputlisting[language=C, frame=single]{siCrystal.c}
+\lstinputlisting[style=Matlab-editor]{siCrystal_Plot.m}
 
 \end{document}

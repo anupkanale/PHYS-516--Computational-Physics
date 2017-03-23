@@ -6,7 +6,7 @@
 
 #define NMAX 100           /* Max # of atoms */
 #define NAUC 8             /* # of atoms per unit cell */
-#define LCNS 1*5.43		   /* Lattice constant of Si (5.43 angstrom) in atomic unit */
+#define LCNS 1.0*5.43		   /* Lattice constant of Si (5.43 angstrom) in atomic unit */
 
 int nAtom;                 /* # of atoms */
 double r[NMAX][3];         /* r[i][0|1|2] is the x|y|z coordinate of atom i */
