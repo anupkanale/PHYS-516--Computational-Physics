@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #define NMAX 100           /* Max # of atoms */
 #define NAUC 8             /* # of atoms per unit cell */
-#define LCNS 5.43		   /* Lattice constant of Si (5.43 angstrom) in atomic unit */
+#define LCNS 1*5.43		   /* Lattice constant of Si (5.43 angstrom) in atomic unit */
 int nAtom;                 /* # of atoms */
 double r[NMAX][3];         /* r[i][0|1|2] is the x|y|z coordinate of atom i */
 int InitUcell[3];          /* # of unit cells */
@@ -15,6 +16,9 @@ void InitConf();
 double SignR(double, double);
 void tred2(double **, int, double *, double *);
 void tqli(double *, double *, int, double **);
+void computeDOS(double *, int);
+void fermDist(double *, int);
+void sortd(double *, int);
 
 int main() {
 	InitConf();
@@ -22,6 +26,7 @@ int main() {
 	double **h;	// Hamiltonian matrix
 	double *d;	// Eigenvalues
 	double *e;	// Work array for matrix diagonalization
+	FILE *fp;
 
 	int n4;
 	n4 = 4*nAtom;
@@ -65,7 +70,7 @@ int main() {
 		  else {
 			// Calc rij with min image convention
 			for (kk=0; kk<3; kk++) {
-				rij[kk] = r[ii][kk] - r[jj][kk];
+				rij[kk] = r[jj][kk] - r[ii][kk];
 				/* Chooses the nearest image */
 				rij[kk] = rij[kk] - SignR(RegionH[kk],rij[kk]-RegionH[kk]) - SignR(RegionH[kk],rij[kk]+RegionH[kk]);
 			}
@@ -108,24 +113,118 @@ int main() {
 		}
 	}
 
+	// Print out the Hamiltonian matrix
+	fp = fopen("hamiltonian.txt", "w");
+	fprintf(fp, "Hamiltonian matrix before diagonalizing\n");
+	fprintf(fp, "/*--------------------------------------*/\n");
+	for (ii=1; ii<=n4; ii++) {
+		for (jj=1; jj<=n4; jj++) {
+			fprintf(fp, "%12le  ", h[ii][jj]);
+		}
+		fprintf(fp, "\n");
+	}
+	fclose(fp);
+
 	/* Diagonalize the Hamiltonian matrix */
 	tred2(h,n4,d,e);
 	tqli(d,e,n4,h);
 
-	// Print out the Hamiltonian matrix
-	for (ii=1; ii<=n4; ii++) {
-		printf("\n");
-		for (jj=1; jj<=n4; jj++) {
-			printf("%12le ", h[ii][jj]);
+	// Compute Density of States
+	computeDOS(d, n4);
+
+
+	sortd(d, n4);
+	// Get Fermi distribution
+	fermDist(d, n4);
+}
+
+
+/* Find mu using Newton Raphson and compute fermi distribution */
+void fermDist(double *d, int n4) {
+	// compute Fermi distribution
+	long double ferm[n4];
+	long double expo, kbt = 0.2;
+	long double fSum = 0.0, dFdu = 0.0, Fu;
+	long double uNew, uTol=100.0;
+	long double uOld = 1.5;
+	int input;
+
+	while(uTol>1e-5) {
+		fSum = 0.0;
+		dFdu = 0.0;
+		for (int ii=n4/2; ii<=n4; ii++) {
+			expo = exp( (d[ii]-uOld)/kbt );
+			ferm[ii-1] = 2.0/(expo + 1);
+			fSum = fSum + ferm[ii];
+			dFdu = dFdu -2.0*expo/pow((expo+1), 2);
+		}
+		Fu = fSum-n4;
+		uNew = uOld - Fu/dFdu;
+		uTol = fabs(uNew-uOld);
+		uOld = uNew;
+	scanf("%d", &input);
+	printf("%le \n", Fu);
+	printf("%le \n", dFdu);
+	}
+	printf("%le", uNew);
+}
+
+
+void sortd(double *d, int n4){
+	double dummy;
+	for (int ii=1; ii<=n4; ii++) {
+		for (int jj=ii+1; jj<=n4; jj++) {
+			if (d[ii]>d[jj]) {
+				dummy = d[ii];
+				d[ii] = d[jj];
+				d[jj] = dummy;
+			}
 		}
 	}
 }
 
+/* Compute Density of States */
+/*------------------------------------------------------------------------------*/
+void computeDOS(double *d, int n4){
 
+	FILE *fp;
+	int ii,kk,totStates = 100;
+	double sigma = 0.1, deps;
+	deps= (double) 25/totStates;
+	double Dens[totStates], eps[totStates];
+	
+	for (ii=0; ii<totStates-1; ii++) {
+		if (ii==0) {eps[0] = -15.0;}
+		else {eps[ii] = eps[ii-1] + deps;}
+	}
+
+
+	for (ii=1; ii<totStates; ii++) {
+		Dens[ii] = 0;
+		for (kk=1; kk<=n4; kk++) {
+			Dens[ii] = Dens[ii] + 1/(sqrt(M_PI)*sigma) * exp(-pow( ( (eps[ii] - d[kk])/sigma),2 ));
+		}
+	}
+
+	fp = fopen("DensOStates.txt", "w");
+	for (ii=1; ii<totStates-1; ii++) {
+		fprintf(fp, "%le \t %le \n", eps[ii], Dens[ii]);
+	}
+	fclose(fp);
+}
+/*------------------------------------------------------------------------------*/
+
+
+
+/* To apply minimum image convention */
+/*------------------------------------------------------------------------------*/
 double SignR(double v,double x) {
 	if (x > 0) return v;
 	else return -v;
 	}
+/*------------------------------------------------------------------------------*/
+
+
 
 void InitConf() {
 /*------------------------------------------------------------------------------
