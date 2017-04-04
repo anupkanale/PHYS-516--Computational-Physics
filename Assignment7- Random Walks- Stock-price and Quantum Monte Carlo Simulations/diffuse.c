@@ -18,7 +18,7 @@ int main() {
   for (k=0; k<=1000; k++)
     hist[k] = 0.0;
 
-  srand((unsigned)time((long *)0)); /* Initialize the rondom-number sequence */
+  srand((unsigned)time((long *)0)); /* Initialize the random-number sequence */
 
   for (walker=1; walker<=N_walker; walker++) {
     x = 0;
@@ -28,7 +28,7 @@ int main() {
       else
         --x;
     } /* Endfor step */
-    k = x + 500;
+    k = x + 500; // because negative indexing not allowed.
     ++hist[k];
   } /* Endfor walker */
 
