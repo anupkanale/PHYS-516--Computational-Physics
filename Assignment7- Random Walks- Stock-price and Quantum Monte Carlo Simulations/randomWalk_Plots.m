@@ -1,7 +1,7 @@
 clc;
 close all; clear all;
 
-N = 10000;
+N = 1000;
 fs = 14; % Font Size
 %% Scatter Plots for Stock prices
 %---------------------------------------------------
@@ -24,6 +24,7 @@ hold off;
 histData = dlmread('histogramData.txt');
 investor = histData(:,1);
 count = histData(:,2);
+figure();
 plot(investor, count, 'LineWidth', 1.5);
 
 xlabel('investor','FontSize', fs); ylabel('Count','FontSize', fs);

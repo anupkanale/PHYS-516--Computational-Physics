@@ -23,75 +23,101 @@ compute the ground state energy.
 #include <math.h>
 
 // define function prototypes
-void intialize();
+void initialize();
 void walk();
 void data();
 
 // Constants
-int N0=50;	 	//initial walkers
+#define N0 50	 	//initial walkers
+#define mcs 500	//MC steps
+#define MAXX 100
+#define maxpsi 100
+
 double ds=0.1;  //random walk step
 double dt=0.01; //time step (=ds^2)
-int mcs=500; 	//MC steps
+
 
 // Variables
 int N;		 //# of walkers
 double Vref; //ref energy
 
-int main() {
-	initialize(N);
-	for(step=1; step<=0.5*mcs; step++)
-		walk();		 // thermalization
+double x[MAXX+1];// position of each random walker
+double psi[maxpsi+1]; // histogram
 
+int main() {
+	int step;
+	FILE *fp;
+
+  srand((unsigned)time((long *)0)); /* Initialize the random-number sequence */
+
+	initialize();
+	printf("%f \n", Vref);
+	for(step=1; step<=0.4*mcs; step++){
+		walk();		 // thermalization
+	}
+
+	fp = fopen("vRef.txt", "w");
 	for (step=1; step<=mcs; step++) {
 		walk();
+		fprintf(fp, "%d %f \n",step, Vref);
 		data();
 	}
+	fclose(fp);
 	//plot_psi();
 
  	return 0;
 }
 
-// Function definions
-void initilize() {
+// Function definitions
+void initialize() {
+	int i;
 	N = N0;
-	for (i=1; i<N; i++)
-		x[i] = rand() ; //uniform random number # in [-1,1]
 
+	// Assign position to N0 random walkers
 	for (i=0; i<N; i++)
-		V_ref += x[i]^2/2 // = <V>, this is the harmonic potential x_i^2/2
-	V_ref = V_ref/N;
+		x[i] = -1+2*rand()/(double) RAND_MAX ; //uniform random number # in [-1,1]
+
+	// Calculate reference energy
+	for (i=0; i<N; i++)
+		Vref += pow(x[i],2)/2; // = <V>, this is the harmonic potential x_i^2/2
+	Vref = Vref/N;
 }
 
 void walk() {
-	Nin = N;
-	Vsum = 0;
-	for (i=Nin; i>=1; i--){ //Going ulta!!
-		// Random Walk as in diffuse.c
+	int i;
+	int Nin = N;
+	double Vavg, dV, Vsum=0.0;
+
+	for (i=Nin; i>=1; i--) { //Going ulta!!
+	// Random Walk as in diffuse.c
 		if(rand()%2==0) x[i] += ds;
 		else x[i] -= ds;
+
 		// Birth or death
-		dV = V(x_i) – Vref; //here V(x_i) = x_i^2/2
-		
+		dV = pow(x[i],2)/2 - Vref;
 		if (dV<0.0)
-			if ( rand()/(double)RANDMAX < -dV*dt)
-				++N;
+			if (rand()/(double)RAND_MAX < -dV*dt){
+				N++;
 				x[N] = x[i];
-				Vsum += 2*V(x_i);
+				Vsum += 2*pow(x[i],2)/2;} //here V(x_i) = x_i^2/2}
 			else
-				Vsum += V(x_i);
+				Vsum += pow(x[i],2)/2;
 		else
-			if ( rand()/(double)RANDMAX < dV*dt)
+			if ( rand()/(double)RAND_MAX < dV*dt){
 				x[i] = x[N];
-				N--;
+				N--;}
 			else
-				Vsum += V(x_i);
+				Vsum += pow(x[i],2)/2;
 	}
 
 	Vavg = Vsum/N;
-	Vref = Vavg – (N-N0)/(N0*dt);
+	Vref = Vavg - (N-N0)/(double)(N0*dt);
 }
 
 void data(){
-	for(i=1; i<=N; i++)
-		++psi[(int) (x[i] + xshift + 0.5*binsize)/binsize];
+	double xshift, binsize;
+	xshift = binsize*maxpsi*0.5;
+	binsize = 2*ds;
+	for(int i=1; i<=N; i++){}
+		//++psi[(int) (x[i] + xshift + 0.5*binsize)/binsize];
 }
