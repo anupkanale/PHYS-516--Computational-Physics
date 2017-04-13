@@ -30,12 +30,11 @@ void data();
 // Constants
 #define N0 50	 	//initial walkers
 #define mcs 500	//MC steps
-#define MAXX 100
+#define MAXX 200
 #define maxpsi 100
 
 double ds=0.1;  //random walk step
 double dt=0.01; //time step (=ds^2)
-
 
 // Variables
 int N;		 //# of walkers
@@ -46,24 +45,35 @@ double psi[maxpsi+1]; // histogram
 
 int main() {
 	int step;
-	FILE *fp;
+	FILE *fp1, *fp2;
+	double psiSum = 0.0;
 
   srand((unsigned)time((long *)0)); /* Initialize the random-number sequence */
 
 	initialize();
-	printf("%f \n", Vref);
 	for(step=1; step<=0.4*mcs; step++){
 		walk();		 // thermalization
 	}
 
-	fp = fopen("vRef.txt", "w");
+	fp1 = fopen("vRef.txt", "w");
 	for (step=1; step<=mcs; step++) {
 		walk();
-		fprintf(fp, "%d %f \n",step, Vref);
+		fprintf(fp1, "%d %f \n",step, Vref);
 		data();
 	}
-	fclose(fp);
-	//plot_psi();
+	fclose(fp1);
+
+	for (int i=1; i<=maxpsi; i++){
+		psiSum += psi[i]*psi[i]*0.2;
+	}
+	psiSum = sqrt(psiSum);
+
+	fp2 = fopen("qmcHistogram.txt", "w");
+	for (int i=1; i<=maxpsi; i++){
+		psi[i] = psi[i]/psiSum;
+		fprintf(fp2, "%d %f \n", i, psi[i]);
+	}
+	fclose(fp2);
 
  	return 0;
 }
@@ -74,11 +84,11 @@ void initialize() {
 	N = N0;
 
 	// Assign position to N0 random walkers
-	for (i=0; i<N; i++)
+	for (i=1; i<=N; i++)
 		x[i] = -1+2*rand()/(double) RAND_MAX ; //uniform random number # in [-1,1]
 
 	// Calculate reference energy
-	for (i=0; i<N; i++)
+	for (i=1; i<=N; i++)
 		Vref += pow(x[i],2)/2; // = <V>, this is the harmonic potential x_i^2/2
 	Vref = Vref/N;
 }
@@ -116,8 +126,12 @@ void walk() {
 
 void data(){
 	double xshift, binsize;
-	xshift = binsize*maxpsi*0.5;
+	int bin;
+
 	binsize = 2*ds;
-	for(int i=1; i<=N; i++){}
-		//++psi[(int) (x[i] + xshift + 0.5*binsize)/binsize];
+	xshift = binsize*maxpsi*0.5;
+	for(int i=1; i<=N; i++){
+		bin = (x[i] + xshift + 0.5*binsize)/binsize;
+		psi[(int)bin] += 1;
+	}
 }

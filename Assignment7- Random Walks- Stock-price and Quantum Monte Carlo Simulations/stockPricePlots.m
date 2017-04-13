@@ -16,7 +16,7 @@ for walker=1:N
 end
 
 xlabel('day','FontSize', fs); ylabel('Stock price','FontSize', fs);
-title('Stock price Monte Carlo simulation', 'FontSize', fs-4);
+title('MC simulation for Stock price', 'FontSize', fs-4);
 hold off;
 
 %% Histogram data
@@ -26,6 +26,7 @@ investor = histData(:,1);
 count = histData(:,2);
 figure();
 plot(investor, count, 'LineWidth', 1.5);
+delete('histogramData.txt');
 
-xlabel('investor','FontSize', fs); ylabel('Count','FontSize', fs);
+xlabel('Ending stock price','FontSize', fs); ylabel('Count','FontSize', fs);
 title('Histogram', 'FontSize', fs-4);
