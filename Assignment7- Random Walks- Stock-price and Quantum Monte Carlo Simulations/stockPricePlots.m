@@ -1,7 +1,7 @@
 clc;
 close all; clear all;
 
-N = 1000;
+N = 50000;
 fs = 14; % Font Size
 %% Scatter Plots for Stock prices
 %---------------------------------------------------
